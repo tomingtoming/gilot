@@ -100,7 +100,7 @@ class CommitRecord:
 
     @ classmethod
     def compose(cls, commit: git.Commit,full : bool = False) -> CommitRecord:
-        total = commit.stats.total
+        total = EMPTY_TOTAL if(is_merge(commit)) else commit.stats.total
         file_json = json.dumps(commit.stats.files) if(full) else None
 
         return cls(
@@ -155,6 +155,13 @@ class CommitRecord:
         self.files = files
         self.files_json = None
         return self
+
+
+def is_merge(commit: git.Commit) -> bool:
+    return 1 < len(commit.parents)
+
+
+EMPTY_TOTAL = dict(insertions=0, deletions=0, lines=0, files=0)
 
 
 class CommitDataFrame(pd.DataFrame):
